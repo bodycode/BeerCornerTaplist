@@ -71,7 +71,17 @@ app.get('/', (req, res) => {
   res.redirect('/taplist');
 });
 
-app.get('/:page', (req, res) => {
+app.get('/taplist', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'taplist.html'));
+});
+
+app.get('/milkshakep1', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'milkshakep1.html'));
+});
+
+app.get('/milkshakep2', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'milkshakep2.html'));
+});
   const page = req.params.page.toLowerCase();
   if (!ALLOWED_IDS.includes(page)) {
     return res.status(404).send('Page not found');

@@ -14,7 +14,7 @@ app.use((req, res, next) => {
 });
 
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
-const ALLOWED_IDS = ['taplist', 'milkshakep1', 'milkshakep2'];
+const ALLOWED_IDS = ['menuboard', 'mobile'];
 
 // Ensure uploads folder exists
 if (!fs.existsSync(UPLOAD_DIR)) {
@@ -64,16 +64,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(UPLOAD_DIR));
 
 // ✅ Explicit pages (no catch-all!)
-app.get('/taplist', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'taplist.html'));
+app.get('/menuboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'menuboard.html'));
 });
 
-app.get('/milkshakep1', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'milkshakep1.html'));
-});
-
-app.get('/milkshakep2', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'milkshakep2.html'));
+app.get('/mobile', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'mobile.html'));
 });
 
 // socket

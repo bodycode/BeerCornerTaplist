@@ -22,7 +22,7 @@ if (!fs.existsSync(UPLOAD_DIR)) {
 }
 
 // Accept raw uploads
-app.use(express.raw({ type: 'application/octet-stream', limit: '50mb' }));
+app.use(express.raw({ type: '*/*', limit: '50mb' }));
 
 // ✅ Upload route FIRST
 app.post('/upload/:imageId', (req, res) => {

@@ -46,6 +46,22 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Test POST endpoint (for debugging)
+app.post('/test-upload', (req, res) => {
+  console.log('=== TEST UPLOAD RECEIVED ===');
+  console.log(`Content-Type: ${req.get('content-type')}`);
+  console.log(`Content-Length: ${req.get('content-length')}`);
+  console.log(`Body size: ${Buffer.isBuffer(req.body) ? req.body.length : 'not a buffer'}`);
+  
+  if (Buffer.isBuffer(req.body) && req.body.length > 0) {
+    console.log('✓ Test upload received successfully');
+    res.json({ success: true, message: 'Test upload received', bytes: req.body.length });
+  } else {
+    console.log('✗ No data in request body');
+    res.status(400).json({ success: false, message: 'No data received' });
+  }
+});
+
 // Root redirect
 app.get('/', (req, res) => {
   res.redirect('/taplist');
@@ -64,7 +80,7 @@ app.get('/:page', (req, res) => {
 app.post('/upload/:imageId', (req, res) => {
   const imageId = req.params.imageId.toLowerCase();
   
-  console.log(`Upload request for: ${imageId}`);
+  console.log(`=== UPLOAD REQUEST ===${imageId}`);
   console.log(`Content-Type: ${req.get('content-type')}`);
   console.log(`Content-Length: ${req.get('content-length')}`);
   console.log(`Body size: ${Buffer.isBuffer(req.body) ? req.body.length : 'not a buffer'}`);
@@ -86,13 +102,13 @@ app.post('/upload/:imageId', (req, res) => {
     // Write the binary data to file
     fs.writeFileSync(filePath, req.body);
     const stats = fs.statSync(filePath);
-    console.log(`File saved successfully: ${filePath} (${stats.size} bytes)`);
+    console.log(`✓ File saved: ${filePath} (${stats.size} bytes)`);
     
     const timestamp = Date.now();
     
     // Notify all connected clients
     io.emit('imageUpdated', { id: imageId, timestamp });
-    console.log(`Broadcast sent for image: ${imageId}`);
+    console.log(`✓ Broadcast sent for image: ${imageId}`);
 
     res.json({
       success: true,
@@ -100,7 +116,7 @@ app.post('/upload/:imageId', (req, res) => {
       message: `Image ${imageId} uploaded successfully (${stats.size} bytes)`
     });
   } catch (err) {
-    console.error(`Error saving file ${filePath}: ${err.message}`);
+    console.error(`✗ Error saving file ${filePath}: ${err.message}`);
     res.status(500).json({ 
       success: false, 
       error: 'Failed to save file',
@@ -111,41 +127,41 @@ app.post('/upload/:imageId', (req, res) => {
 
 // Socket.IO connection handler
 io.on('connection', (socket) => {
-  console.log(`Client connected: ${socket.id}`);
+  console.log(`[SOCKET] Client connected: ${socket.id}`);
   
   socket.on('requestCurrent', ({ id }) => {
-    console.log(`Client ${socket.id} requested current image for: ${id}`);
+    console.log(`[SOCKET] Client ${socket.id} requested current image for: ${id}`);
     
     if (!ALLOWED_IDS.includes(id)) {
-      console.warn(`Invalid ID requested: ${id}`);
+      console.warn(`[SOCKET] Invalid ID requested: ${id}`);
       return;
     }
     
     const filePath = path.join(UPLOAD_DIR, `${id}.jpg`);
     if (fs.existsSync(filePath)) {
       const stats = fs.statSync(filePath);
-      console.log(`File exists (${stats.size} bytes), sending update for: ${id}`);
+      console.log(`[SOCKET] File exists (${stats.size} bytes), sending update for: ${id}`);
       socket.emit('imageUpdated', { id, timestamp: Date.now() });
     } else {
-      console.log(`File not found: ${filePath}`);
+      console.log(`[SOCKET] File not found: ${filePath}`);
     }
   });
 
   socket.on('disconnect', () => {
-    console.log(`Client disconnected: ${socket.id}`);
+    console.log(`[SOCKET] Client disconnected: ${socket.id}`);
   });
 
   socket.on('error', (error) => {
-    console.error(`Socket error from ${socket.id}: ${error}`);
+    console.error(`[SOCKET] Error from ${socket.id}: ${error}`);
   });
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`BeerCorner menu server running on port ${PORT}`);
-  console.log(`Uploads directory: ${UPLOAD_DIR}`);
-  console.log(`Uploads directory exists: ${fs.existsSync(UPLOAD_DIR)}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🚀 BeerCorner menu server running on port ${PORT}`);
+  console.log(`📁 Uploads directory: ${UPLOAD_DIR}`);
+  console.log(`✓ Directory exists: ${fs.existsSync(UPLOAD_DIR)}`);
+  console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
 // Graceful shutdown

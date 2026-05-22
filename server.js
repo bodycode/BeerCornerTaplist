@@ -8,6 +8,11 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+app.use((req, res, next) => {
+  console.log("INCOMING:", req.method, req.url);
+  next();
+});
+
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
 const ALLOWED_IDS = ['taplist', 'milkshakep1', 'milkshakep2'];
 

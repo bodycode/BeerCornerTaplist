@@ -1,7 +1,6 @@
 const express = require('express');
 const http = require('http');
 const path = require('path');
-const multer = require('multer');
 const { Server } = require('socket.io');
 const fs = require('fs');
 
@@ -29,23 +28,9 @@ try {
   console.error(`Failed to create uploads directory: ${err.message}`);
 }
 
-// Configure multer storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    console.log(`Saving file to: ${UPLOAD_DIR}`);
-    cb(null, UPLOAD_DIR);
-  },
-  filename: (req, file, cb) => {
-    const filename = `${req.params.imageId}.jpg`;
-    console.log(`Filename: ${filename}`);
-    cb(null, filename);
-  }
-});
-
-const upload = multer({ 
-  storage,
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
-});
+// Middleware to handle raw binary uploads
+app.use(express.raw({ type: 'image/jpeg', limit: '50mb' }));
+app.use(express.raw({ type: 'application/octet-stream', limit: '50mb' }));
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -53,7 +38,12 @@ app.use('/uploads', express.static(UPLOAD_DIR));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', uploadsDir: UPLOAD_DIR, uploadsDirExists: fs.existsSync(UPLOAD_DIR) });
+  res.json({ 
+    status: 'ok', 
+    uploadsDir: UPLOAD_DIR, 
+    uploadsDirExists: fs.existsSync(UPLOAD_DIR),
+    port: process.env.PORT || 3000
+  });
 });
 
 // Root redirect
@@ -70,45 +60,53 @@ app.get('/:page', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', `${page}.html`));
 });
 
-// Image upload endpoint
-app.post('/upload/:imageId', upload.single('menuImage'), (req, res) => {
+// Image upload endpoint - accepts raw binary data
+app.post('/upload/:imageId', (req, res) => {
   const imageId = req.params.imageId.toLowerCase();
   
   console.log(`Upload request for: ${imageId}`);
+  console.log(`Content-Type: ${req.get('content-type')}`);
+  console.log(`Content-Length: ${req.get('content-length')}`);
+  console.log(`Body size: ${Buffer.isBuffer(req.body) ? req.body.length : 'not a buffer'}`);
   
   if (!ALLOWED_IDS.includes(imageId)) {
     console.warn(`Invalid image ID: ${imageId}`);
     return res.status(400).json({ success: false, error: 'Invalid image id' });
   }
   
-  if (!req.file) {
-    console.warn(`No file uploaded for: ${imageId}`);
-    return res.status(400).json({ success: false, error: 'No file uploaded' });
+  // Check if we received any data
+  if (!req.body || !Buffer.isBuffer(req.body) || req.body.length === 0) {
+    console.warn(`No file data received for: ${imageId}`);
+    return res.status(400).json({ success: false, error: 'No file data received' });
   }
 
-  const timestamp = Date.now();
   const filePath = path.join(UPLOAD_DIR, `${imageId}.jpg`);
   
-  // Verify file was actually saved
-  if (fs.existsSync(filePath)) {
-    console.log(`File saved successfully: ${filePath}`);
-  } else {
-    console.error(`File NOT saved: ${filePath}`);
-  }
-  
-  // Notify all connected clients
   try {
+    // Write the binary data to file
+    fs.writeFileSync(filePath, req.body);
+    const stats = fs.statSync(filePath);
+    console.log(`File saved successfully: ${filePath} (${stats.size} bytes)`);
+    
+    const timestamp = Date.now();
+    
+    // Notify all connected clients
     io.emit('imageUpdated', { id: imageId, timestamp });
     console.log(`Broadcast sent for image: ${imageId}`);
-  } catch (err) {
-    console.error(`Error broadcasting: ${err.message}`);
-  }
 
-  res.json({
-    success: true,
-    url: `/uploads/${imageId}.jpg?ts=${timestamp}`,
-    message: `Image ${imageId} uploaded and broadcast to clients`
-  });
+    res.json({
+      success: true,
+      url: `/uploads/${imageId}.jpg?ts=${timestamp}`,
+      message: `Image ${imageId} uploaded successfully (${stats.size} bytes)`
+    });
+  } catch (err) {
+    console.error(`Error saving file ${filePath}: ${err.message}`);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to save file',
+      details: err.message 
+    });
+  }
 });
 
 // Socket.IO connection handler
@@ -125,7 +123,8 @@ io.on('connection', (socket) => {
     
     const filePath = path.join(UPLOAD_DIR, `${id}.jpg`);
     if (fs.existsSync(filePath)) {
-      console.log(`File exists, sending update for: ${id}`);
+      const stats = fs.statSync(filePath);
+      console.log(`File exists (${stats.size} bytes), sending update for: ${id}`);
       socket.emit('imageUpdated', { id, timestamp: Date.now() });
     } else {
       console.log(`File not found: ${filePath}`);

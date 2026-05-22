@@ -38,7 +38,18 @@ app.post('/upload/:imageId', (req, res) => {
 
   const filePath = path.join(UPLOAD_DIR, `${imageId}.jpg`);
 
-  fs.writeFileSync(filePath, req.body);
+  // ✅ FIX STARTS HERE
+  const body = req.body.toString('binary');
+  const start = body.indexOf("\r\n\r\n") + 4;
+  const end = body.lastIndexOf("\r\n--");
+
+  if (start < 4 || end <= start) {
+    return res.status(400).json({ success: false, error: "Invalid multipart format" });
+  }
+
+  const fileData = Buffer.from(body.substring(start, end), 'binary');
+  fs.writeFileSync(filePath, fileData);
+  // ✅ FIX ENDS HERE
 
   const timestamp = Date.now();
   io.emit('imageUpdated', { id: imageId, timestamp });
@@ -48,7 +59,6 @@ app.post('/upload/:imageId', (req, res) => {
     url: `/uploads/${imageId}.jpg?ts=${timestamp}`
   });
 });
-
 // ✅ Static files AFTER upload
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(UPLOAD_DIR));

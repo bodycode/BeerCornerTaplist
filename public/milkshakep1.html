@@ -3,18 +3,76 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mobile Menu</title>
+  <title>Beer Corner Mobile Menu</title>
+
   <link rel="stylesheet" href="/css/style.css">
+
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      max-width: 100%;
+      padding: 10px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 10px 0;
+      letter-spacing: 2px;
+    }
+
+    .image-wrapper {
+      width: 100%;
+    }
+
+    #menuImage {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255,255,255,0.2);
+    }
+
+    .footer {
+      font-size: 12px;
+      margin-top: 10px;
+      opacity: 0.7;
+      letter-spacing: 1px;
+    }
+
+    /* ✅ Prevent horizontal scroll */
+    html, body {
+      overflow-x: hidden;
+    }
+
+    /* ✅ Improve tap feel */
+    img {
+      touch-action: manipulation;
+    }
+  </style>
 </head>
+
 <body data-image-id="mobile">
+
   <div class="container">
     <h1>BC TAPLIST</h1>
+
     <div class="image-wrapper">
-      <img id="menuImage" src="/uploads/Mobile.jpg" alt="BC Mobile Menue image">
+      <img id="menuImage" 
+           src="/uploads/mobile.jpg" 
+           alt="Beer Corner Mobile Menu">
     </div>
-    <div class="footer">WE'VE GOTTEM CORNERED!</div>
+
+    <div class="footer">WE’VE GOT THEM CORNERED!</div>
   </div>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/view.js"></script>
+
 </body>
 </html>

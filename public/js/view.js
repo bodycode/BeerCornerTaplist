@@ -20,3 +20,9 @@ socket.on('imageUpdated', (data) => {
 imageElement.addEventListener('error', () => {
   imageElement.alt = 'No image uploaded yet.';
 });
+
+// ✅ fallback refresh every 30 seconds
+setInterval(() => {
+  refreshImage();
+}, 30000);
+

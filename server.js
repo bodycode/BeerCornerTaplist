@@ -45,7 +45,7 @@ app.post('/upload/:imageId', (req, res) => {
     });
   }
 
-  const filePath = path.join(UPLOAD_DIR, `${imageId}.jpg`);
+  const filePath = path.join(UPLOAD_DIR, `${imageId}.png`);
 
   try {
     // VBA is sending multipart/form-data, so we need to strip the multipart wrapper.
@@ -75,7 +75,7 @@ app.post('/upload/:imageId', (req, res) => {
 
     res.json({
       success: true,
-      url: `/uploads/${imageId}.jpg?ts=${timestamp}`
+      url: `/uploads/${imageId}.png?ts=${timestamp}`
     });
 
   } catch (err) {
@@ -89,7 +89,7 @@ app.post('/upload/:imageId', (req, res) => {
 });
 
 // Static files
-// Browser loads images from: /uploads/menuboard.jpg or /uploads/mobile.jpg
+// Browser loads images from: /uploads/menuboard.png or /uploads/mobile.png
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(UPLOAD_DIR));
 
@@ -115,7 +115,7 @@ io.on('connection', (socket) => {
       return;
     }
 
-    const filePath = path.join(UPLOAD_DIR, `${id}.jpg`);
+    const filePath = path.join(UPLOAD_DIR, `${id}.png`);
 
     if (fs.existsSync(filePath)) {
       socket.emit('imageUpdated', {

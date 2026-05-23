@@ -3,7 +3,7 @@ const imageElement = document.getElementById('menuImage');
 const socket = io();
 
 function refreshImage() {
-  const url = `/uploads/${imageId}.jpg?ts=${Date.now()}`;
+  const url = `/uploads/${imageId}.png?ts=${Date.now()}`;
   imageElement.src = url;
 }
 

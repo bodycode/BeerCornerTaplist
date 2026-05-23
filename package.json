@@ -1,7 +1,7 @@
 {
   "name": "beercorner-menu-server",
   "version": "0.1.0",
-  "description": "Menu image hosting server for Beer Corner Taplist and Milkshake pages.",
+  "description": "Menu image hosting server for Beer Corner Taplist and Mobile Menue.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

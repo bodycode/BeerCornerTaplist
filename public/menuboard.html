@@ -2,20 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=1920, height=1080">
   <title>BEER CORNER MENUBOARD</title>
-  <link rel="stylesheet" href="/css/style.css">
+
+  <!-- Auto refresh every 60 seconds -->
+  <meta http-equiv="refresh" content="60">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: black;
+    }
+
+    .image-wrapper {
+      width: 100%;
+      height: 100%;
+    }
+
+    #menuImage {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  </style>
 </head>
-<body data-image-id="menuboard">
-  <div class="container">
-    <h1>Taplist Menu</h1>
-    <div class="image-wrapper">
-      <img id="menuImage" src="/uploads/menuboard.png" alt="Menuboard Image">
-    </div>
-    <div class="footer">Auto-updates when a 'Save Menu as PDF' is pressed.</div>
+<body>
+  <div class="image-wrapper">
+    <img src="/uploads/menuboard.png">
   </div>
-  
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/view.js"></script>
 </body>
 </html>

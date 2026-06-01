@@ -25,7 +25,6 @@ if (!fs.existsSync(UPLOAD_DIR)) {
 app.use(express.raw({ type: '*/*', limit: '50mb' }));
 
 // Upload endpoint
-// Excel/VBA posts to: /upload/menuboard or /upload/mobile
 app.post('/upload/:imageId', (req, res) => {
   const imageId = req.params.imageId.toLowerCase();
 
@@ -48,7 +47,6 @@ app.post('/upload/:imageId', (req, res) => {
   const filePath = path.join(UPLOAD_DIR, `${imageId}.png`);
 
   try {
-    // VBA is sending multipart/form-data, so we need to strip the multipart wrapper.
     const body = req.body.toString('binary');
     const start = body.indexOf("\r\n\r\n") + 4;
     const end = body.lastIndexOf("\r\n--");
@@ -89,7 +87,6 @@ app.post('/upload/:imageId', (req, res) => {
 });
 
 // Static files
-// Browser loads images from: /uploads/menuboard.png or /uploads/mobile.png
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(UPLOAD_DIR));
 
@@ -105,6 +102,13 @@ app.get('/menuboard', (req, res) => {
 app.get('/mobile', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'mobile.html'));
 });
+
+
+// ✅ ✅ ADD THIS ROUTE RIGHT HERE
+app.get('/display', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'display.html'));
+});
+
 
 // Socket.IO
 io.on('connection', (socket) => {

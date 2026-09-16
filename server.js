@@ -14,11 +14,23 @@ app.use((req, res, next) => {
 });
 
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
-const ALLOWED_IDS = ['menuboard', 'mobile'];
+const POPUP_CONFIG_FILE = path.join(__dirname, 'popup-config.json');
+const ALLOWED_IDS = ['menuboard', 'mobile', 'popup'];
 
 // Ensure uploads folder exists
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+}
+
+if (!fs.existsSync(POPUP_CONFIG_FILE)) {
+  fs.writeFileSync(
+    POPUP_CONFIG_FILE,
+    JSON.stringify({
+      enabled: false,
+      url: "",
+      expiry: ""
+    }, null, 2)
+  );
 }
 
 // Accept multipart/raw uploads from VBA
@@ -104,7 +116,7 @@ app.get('/mobile', (req, res) => {
 });
 
 
-// ✅ ✅ ADD THIS ROUTE RIGHT HERE
+// ADD THIS ROUTE RIGHT HERE
 app.get('/display', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'display.html'));
 });

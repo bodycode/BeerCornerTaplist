@@ -15,13 +15,19 @@ app.use((req, res, next) => {
 
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
 const POPUP_CONFIG_FILE = path.join(__dirname, 'popup-config.json');
-const ALLOWED_IDS = ['menuboard', 'mobile', 'popup'];
+
+const ALLOWED_IDS = [
+  'menuboard',
+  'mobile',
+  'popup'
+];
 
 // Ensure uploads folder exists
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
 
+// Ensure popup config file exists
 if (!fs.existsSync(POPUP_CONFIG_FILE)) {
   fs.writeFileSync(
     POPUP_CONFIG_FILE,
@@ -33,10 +39,12 @@ if (!fs.existsSync(POPUP_CONFIG_FILE)) {
   );
 }
 
-// Accept multipart/raw uploads from VBA
+// Accept uploads from VBA
 app.use(express.raw({ type: '*/*', limit: '50mb' }));
 
-// Upload endpoint
+// =====================================================
+// IMAGE UPLOADS
+// =====================================================
 app.post('/upload/:imageId', (req, res) => {
   const imageId = req.params.imageId.toLowerCase();
 
@@ -59,6 +67,7 @@ app.post('/upload/:imageId', (req, res) => {
   const filePath = path.join(UPLOAD_DIR, `${imageId}.png`);
 
   try {
+
     const body = req.body.toString('binary');
     const start = body.indexOf("\r\n\r\n") + 4;
     const end = body.lastIndexOf("\r\n--");
@@ -70,7 +79,10 @@ app.post('/upload/:imageId', (req, res) => {
       });
     }
 
-    const fileData = Buffer.from(body.substring(start, end), 'binary');
+    const fileData = Buffer.from(
+      body.substring(start, end),
+      'binary'
+    );
 
     fs.writeFileSync(filePath, fileData);
 
@@ -89,49 +101,119 @@ app.post('/upload/:imageId', (req, res) => {
     });
 
   } catch (err) {
+
     console.error("Upload error:", err.message);
 
     res.status(500).json({
       success: false,
       error: err.message
     });
+
   }
 });
 
-// Static files
+// =====================================================
+// POPUP CONFIG
+// =====================================================
+app.get('/popup-config', (req, res) => {
+  try {
+
+    const config = JSON.parse(
+      fs.readFileSync(POPUP_CONFIG_FILE, 'utf8')
+    );
+
+    res.json(config);
+
+  } catch (err) {
+
+    res.status(500).json({
+      enabled: false,
+      url: "",
+      expiry: "",
+      error: err.message
+    });
+
+  }
+});
+
+app.post('/popup-config', express.json(), (req, res) => {
+  try {
+
+    const config = {
+      enabled: Boolean(req.body.enabled),
+      url: req.body.url || "",
+      expiry: req.body.expiry || ""
+    };
+
+    fs.writeFileSync(
+      POPUP_CONFIG_FILE,
+      JSON.stringify(config, null, 2)
+    );
+
+    io.emit('popupUpdated');
+
+    res.json({
+      success: true
+    });
+
+  } catch (err) {
+
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
+
+  }
+});
+
+// =====================================================
+// STATIC FILES
+// =====================================================
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(UPLOAD_DIR));
 
-// Pages
+// =====================================================
+// PAGES
+// =====================================================
 app.get('/', (req, res) => {
   res.redirect('/menuboard');
 });
 
 app.get('/menuboard', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'menuboard.html'));
+  res.sendFile(
+    path.join(__dirname, 'public', 'menuboard.html')
+  );
 });
 
 app.get('/mobile', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'mobile.html'));
+  res.sendFile(
+    path.join(__dirname, 'public', 'mobile.html')
+  );
 });
 
-
-// ADD THIS ROUTE RIGHT HERE
 app.get('/display', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'display.html'));
+  res.sendFile(
+    path.join(__dirname, 'public', 'display.html')
+  );
 });
 
-
-// Socket.IO
+// =====================================================
+// SOCKET.IO
+// =====================================================
 io.on('connection', (socket) => {
+
   console.log("Client connected:", socket.id);
 
   socket.on('requestCurrent', ({ id }) => {
+
     if (!ALLOWED_IDS.includes(id)) {
       return;
     }
 
-    const filePath = path.join(UPLOAD_DIR, `${id}.png`);
+    const filePath = path.join(
+      UPLOAD_DIR,
+      `${id}.png`
+    );
 
     if (fs.existsSync(filePath)) {
       socket.emit('imageUpdated', {
@@ -139,14 +221,18 @@ io.on('connection', (socket) => {
         timestamp: Date.now()
       });
     }
+
   });
 
   socket.on('disconnect', () => {
     console.log("Client disconnected:", socket.id);
   });
+
 });
 
-// Start server
+// =====================================================
+// START SERVER
+// =====================================================
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, '0.0.0.0', () => {

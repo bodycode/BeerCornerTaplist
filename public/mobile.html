@@ -2,13 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Beer Corner Mobile Menu</title>
-
   <link rel="stylesheet" href="/css/style.css">
 
   <style>
@@ -90,6 +85,7 @@
       box-sizing: border-box;
       background: rgba(0, 0, 0, 0.88);
       overflow-y: auto;
+      overscroll-behavior: contain;
     }
 
     .event-popup-panel {
@@ -109,7 +105,7 @@
       display: block;
       width: 100%;
       height: auto;
-      max-height: calc(100vh - 50px);
+      max-height: calc(100dvh - 50px);
       object-fit: contain;
       border: 3px solid #fff;
       box-sizing: border-box;
@@ -132,6 +128,7 @@
       line-height: 36px;
       cursor: pointer;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+      -webkit-tap-highlight-color: transparent;
     }
 
     @media (max-width: 420px) {
@@ -150,7 +147,6 @@
 </head>
 
 <body data-image-id="mobile">
-
   <div class="container">
     <h1>BEER CORNER<br>TAPLIST</h1>
 
@@ -173,9 +169,7 @@
     aria-modal="true"
     aria-label="Beer Corner event"
     hidden>
-
     <div class="event-popup-panel">
-
       <button
         id="eventPopupClose"
         class="event-popup-close"
@@ -190,9 +184,17 @@
         href="#"
         target="_blank"
         rel="noopener noreferrer">
-
         <img
           id="eventPopupImage"
           class="event-popup-image"
           src="/uploads/popup.png"
-          alt="
+          alt="Beer Corner event">
+      </a>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/view.js"></script>
+  <script src="/js/popup.js"></script>
+</body>
+</html>

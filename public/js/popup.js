@@ -1,78 +1,206 @@
-const popupOverlay = document.getElementById('eventPopup');
-const popupLink = document.getElementById('eventPopupLink');
-const popupImage = document.getElementById('eventPopupImage');
-const popupClose = document.getElementById('eventPopupClose');
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
 
-async function loadPopup() {
-  try {
-    const response = await fetch(`/popup-config?ts=${Date.now()}`, {
-      cache: 'no-store'
-    });
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
 
-    if (!response.ok) {
-      throw new Error(`Popup config returned ${response.status}`);
+  <title>Beer Corner Mobile Menu</title>
+
+  /css/style.css
+
+  <style>
+    html,
+    body {
+      overflow-x: hidden;
     }
 
-    const config = await response.json();
-
-    const enabled = config.enabled === true;
-    const hasUrl =
-      typeof config.url === 'string' &&
-      config.url.trim() !== '';
-
-    let notExpired = true;
-
-    if (config.expiry) {
-      const expiryDate = new Date(`${config.expiry}T23:59:59`);
-      notExpired =
-        !Number.isNaN(expiryDate.getTime()) &&
-        new Date() <= expiryDate;
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
     }
 
-    if (enabled && hasUrl && notExpired) {
-      popupLink.href = config.url;
-      popupImage.src = `/uploads/popup.png?ts=${Date.now()}`;
-      popupOverlay.hidden = false;
-      document.body.classList.add('popup-open');
-    } else {
-      closePopup();
+    body.popup-open {
+      overflow: hidden;
     }
-  } catch (error) {
-    console.error('Popup loading error:', error);
-    closePopup();
-  }
-}
 
-function closePopup() {
-  popupOverlay.hidden = true;
-  document.body.classList.remove('popup-open');
-}
+    .container {
+      max-width: 100%;
+      padding: 10px;
+      text-align: center;
+      box-sizing: border-box;
+    }
 
-popupClose.addEventListener('click', (event) => {
-  event.preventDefault();
-  event.stopPropagation();
-  closePopup();
-});
+    h1 {
+      font-size: 22px;
+      margin: 10px 0;
+      letter-spacing: 2px;
+    }
 
-popupOverlay.addEventListener('click', (event) => {
-  if (event.target === popupOverlay) {
-    closePopup();
-  }
-});
+    .image-wrapper {
+      width: 100%;
+      max-width: 100vw;
+    }
 
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') {
-    closePopup();
-  }
-});
+    #menuImage {
+      display: block !important;
+      width: 100% !important;
+      max-width: calc(100vw - 25px) !important;
+      height: auto !important;
+      max-height: none !important;
+      margin: 0 auto !important;
+      object-fit: contain !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
 
-popupImage.addEventListener('error', () => {
-  console.error('Popup image could not be loaded.');
-  closePopup();
-});
+    @media (min-width: 768px) {
+      #menuImage {
+        max-width: 520px !important;
+      }
+    }
 
-socket.on('popupUpdated', () => {
-  loadPopup();
-});
+    .footer {
+      font-size: 20px;
+      margin-top: 10px;
+      opacity: 0.3;
+      letter-spacing: 1px;
+    }
 
-loadPopup();
+    img {
+      touch-action: manipulation;
+    }
+
+    /* Event popup */
+
+    .event-popup[hidden] {
+      display: none !important;
+    }
+
+    .event-popup {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      box-sizing: border-box;
+      background: rgba(0, 0, 0, 0.88);
+      overflow-y: auto;
+    }
+
+    .event-popup-panel {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    .event-popup-link {
+      display: block;
+      width: 100%;
+      text-decoration: none;
+    }
+
+    .event-popup-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: calc(100vh - 50px);
+      object-fit: contain;
+      border: 3px solid #fff;
+      box-sizing: border-box;
+      box-shadow: 0 12px 45px rgba(0, 0, 0, 0.65);
+    }
+
+    .event-popup-close {
+      position: absolute;
+      top: -14px;
+      right: -14px;
+      z-index: 2;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      background: #000;
+      color: #fff;
+      font-size: 28px;
+      line-height: 36px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+    }
+
+    .event-popup-close:focus-visible {
+      outline: 3px solid #fff;
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 420px) {
+      .event-popup {
+        padding: 14px;
+      }
+
+      .event-popup-close {
+        top: -10px;
+        right: -8px;
+        width: 40px;
+        height: 40px;
+      }
+    }
+  </style>
+</head>
+
+<body data-image-id="mobile">
+
+  <div class="container">
+    <h1>BEER CORNER<br>TAPLIST</h1>
+
+    <div class="image-wrapper">
+      /uploads/mobile.png
+    </div>
+
+    <div class="footer">
+      WE’VE GOT'EM<br>CORNERED!!!
+    </div>
+  </div>
+
+  <!-- Event popup -->
+  <div
+    id="eventPopup"
+    class="event-popup"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Beer Corner event"
+    hidden>
+
+    <div class="event-popup-panel">
+
+      <button
+        id="eventPopupClose"
+        class="event-popup-close"
+        type="button"
+        aria-label="Close event popup">
+        &times;
+      </button>
+
+      #
+
+        /uploads/popup.png
+      </a>
+
+    </div>
+  </div>
+
+  /socket.io/socket.io.jsscript>
+  /js/view.jsscript>
+  /js/popup.jsscript>
+
+</body>
+</html>

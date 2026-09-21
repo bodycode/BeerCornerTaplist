@@ -9,7 +9,7 @@
 
   <title>Beer Corner Mobile Menu</title>
 
-  /css/style.css
+  <link rel="stylesheet" href="/css/style.css">
 
   <style>
     html,
@@ -75,8 +75,6 @@
       touch-action: manipulation;
     }
 
-    /* Event popup */
-
     .event-popup[hidden] {
       display: none !important;
     }
@@ -132,14 +130,8 @@
       color: #fff;
       font-size: 28px;
       line-height: 36px;
-      text-align: center;
       cursor: pointer;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
-    }
-
-    .event-popup-close:focus-visible {
-      outline: 3px solid #fff;
-      outline-offset: 3px;
     }
 
     @media (max-width: 420px) {
@@ -163,7 +155,10 @@
     <h1>BEER CORNER<br>TAPLIST</h1>
 
     <div class="image-wrapper">
-      /uploads/mobile.png
+      <img
+        id="menuImage"
+        src="/uploads/mobile.png"
+        alt="Beer Corner Mobile Menu">
     </div>
 
     <div class="footer">
@@ -171,7 +166,6 @@
     </div>
   </div>
 
-  <!-- Event popup -->
   <div
     id="eventPopup"
     class="event-popup"
@@ -190,18 +184,15 @@
         &times;
       </button>
 
-      #
+      <a
+        id="eventPopupLink"
+        class="event-popup-link"
+        href="#"
+        target="_blank"
+        rel="noopener noreferrer">
 
-        /uploads/popup.png
-
-      </a>
-
-    </div>
-  </div>
-
-  /socket.io/socket.io.jsscript>
-  /js/view.jsscript>
-  /js/popup.jsscript>
-
-</body>
-</html>
+        <img
+          id="eventPopupImage"
+          class="event-popup-image"
+          src="/uploads/popup.png"
+          alt="

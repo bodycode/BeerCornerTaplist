@@ -22,7 +22,7 @@ imageElement.addEventListener('error', () => {
 });
 
 // ✅ fallback refresh every 30 seconds
-setInterval(() => {
-  refreshImage();
-}, 30000);
+//setInterval(() => {
+//  refreshImage();
+//}, 30000);
 

@@ -2,33 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=1280, height=720">
 
-  <!-- Auto refresh -->
-  <meta http-equiv="refresh" content="60">
+  <meta
+    name="viewport"
+    content="width=1280, height=720">
 
-  <title>Menu</title>
+  <title>Beer Corner Menuboard</title>
 
   <style>
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       width: 1280px;
       height: 720px;
       overflow: hidden;
-      background: black;
+      background: #000;
     }
 
-    img {
+    #menuImage {
+      display: block;
       width: 100%;
       height: 100%;
       object-fit: contain;
     }
   </style>
 </head>
-<body>
 
-  <img src="/uploads/menuboard.png">
+<body data-image-id="menuboard">
+
+  <img
+    id="menuImage"
+    src="/uploads/menuboard.png"
+    alt="Beer Corner Menuboard">
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/view.js?v=3"></script>
 
 </body>
 </html>

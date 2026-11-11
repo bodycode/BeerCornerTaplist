@@ -1,34 +1,27 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=1280, height=720">
+const imageId = document.body.dataset.imageId;
+const imageElement = document.getElementById('menuImage');
+const socket = io();
 
-  <!-- Auto refresh -->
-  <meta http-equiv="refresh" content="60">
+function refreshImage() {
+  const url = `/uploads/${imageId}.png?ts=${Date.now()}`;
+  imageElement.src = url;
+}
 
-  <title>Menu</title>
+socket.on('connect', () => {
+  socket.emit('requestCurrent', { id: imageId });
+});
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 1280px;
-      height: 720px;
-      overflow: hidden;
-      background: black;
-    }
+socket.on('imageUpdated', (data) => {
+  if (data.id === imageId) {
+    refreshImage();
+  }
+});
 
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-  </style>
-</head>
-<body>
+imageElement.addEventListener('error', () => {
+  imageElement.alt = 'No image uploaded yet.';
+});
 
-  <img src="/uploads/menuboard.png">
-
-</body>
-</html>
+// ✅ fallback refresh every 30 seconds
+//setInterval(() => {
+//  refreshImage();
+//}, 30000);

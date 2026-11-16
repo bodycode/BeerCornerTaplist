@@ -4,10 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=1280, height=720">
 
-  <!-- Auto refresh -->
-  <meta http-equiv="refresh" content="60">
-
-  <title>Menu</title>
+  <title>Menu Test</title>
 
   <style>
     html, body {
@@ -26,9 +23,11 @@
     }
   </style>
 </head>
-<body>
+<body data-image-id="test">
 
-  <img src="/uploads/menuboard.png">
+  <img id="menuImage" src="/uploads/test.png" alt="Test menu image">
 
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/view.js"></script>
 </body>
 </html>

@@ -30,7 +30,8 @@ const POPUP_CONFIG_FILE = path.join(
 const ALLOWED_IDS = [
   'menuboard',
   'mobile',
-  'popup'
+  'popup',
+  'test'
 ];
 
 // =====================================================
